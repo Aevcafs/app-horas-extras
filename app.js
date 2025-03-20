@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const PDFDocument = require('pdfkit');
 const path = require('path');
 const session = require('express-session');
+const pgSession = require('connect-pg-simple')(session);
 require('dotenv').config();
 
 const app = express();
@@ -18,9 +19,14 @@ app.set('views', path.join(__dirname, 'views'));
 
 // Configuração da sessão
 app.use(session({
-  secret: 'sua-chave-secreta',
+  store: new pgSession({
+    conString: process.env.DATABASE_URL, // URL de conexão com o PostgreSQL
+    tableName: 'user_sessions', // Nome da tabela para armazenar as sessões
+  }),
+  secret: 'sua-chave-secreta', // Chave secreta para assinar a sessão
   resave: false,
   saveUninitialized: true,
+  cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 }, // 30 dias de duração do cookie
 }));
 
 // Conexão com o PostgreSQL
