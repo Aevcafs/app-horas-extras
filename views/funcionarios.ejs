@@ -11,8 +11,7 @@
   <nav>
     <a href="/">Home</a> |
     <a href="/funcionarios">Funcionários</a> |
-    <a href="/relatorios">Relatórios</a> |
-    <a href="/login">Login</a>
+    <a href="/cadastro-funcionario">Cadastrar Funcionário</a>
   </nav>
   <div id="app">
     <ul>
@@ -21,6 +20,7 @@
           <strong><%= funcionario.nome %></strong> -
           Horas Extras: <%= funcionario.horas_extras %>,
           Horas Folga: <%= funcionario.horas_folga %>
+          <a href="/editar-funcionario/<%= funcionario.id %>">Editar</a>
         </li>
       <% }) %>
     </ul>

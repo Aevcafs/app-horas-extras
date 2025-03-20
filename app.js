@@ -83,6 +83,51 @@ app.get('/relatorios', async (req, res) => {
   res.render('relatorios', { funcionarios: result.rows });
 });
 
+// Rota para exibir o formulário de cadastro
+app.get('/cadastro-funcionario', isAuthenticated, (req, res) => {
+  res.render('cadastro-funcionario');
+});
+
+// Rota para processar o formulário de cadastro
+app.post('/cadastro-funcionario', isAuthenticated, async (req, res) => {
+  const { nome } = req.body;
+  await client.query('INSERT INTO funcionarios (nome) VALUES ($1)', [nome]);
+  res.redirect('/funcionarios');
+});
+
+// Rota para exibir o formulário de cadastro de horas
+app.get('/cadastro-horas', isAuthenticated, async (req, res) => {
+  const result = await client.query('SELECT * FROM funcionarios');
+  res.render('cadastro-horas', { funcionarios: result.rows });
+});
+
+// Rota para processar o formulário de cadastro de horas
+app.post('/cadastro-horas', isAuthenticated, async (req, res) => {
+  const { funcionarioId, horas, folga } = req.body;
+  await client.query(
+    'UPDATE funcionarios SET horas_extras = horas_extras + $1, horas_folga = horas_folga + $2 WHERE id = $3',
+    [horas, folga, funcionarioId]
+  );
+  res.redirect('/funcionarios');
+});
+
+// Rota para exibir o formulário de edição
+app.get('/editar-funcionario/:id', isAuthenticated, async (req, res) => {
+  const { id } = req.params;
+  const result = await client.query('SELECT * FROM funcionarios WHERE id = $1', [id]);
+  res.render('editar-funcionario', { funcionario: result.rows[0] });
+});
+
+// Rota para processar o formulário de edição
+app.post('/editar-funcionario', isAuthenticated, async (req, res) => {
+  const { id, nome, horas_extras, horas_folga } = req.body;
+  await client.query(
+    'UPDATE funcionarios SET nome = $1, horas_extras = $2, horas_folga = $3 WHERE id = $4',
+    [nome, horas_extras, horas_folga, id]
+  );
+  res.redirect('/funcionarios');
+});
+
 app.get('/relatorios/pdf', async (req, res) => {
   const result = await client.query('SELECT * FROM funcionarios');
   const funcionarios = result.rows;
