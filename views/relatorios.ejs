@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relatórios</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <h1>Relatórios</h1>
+  <ul>
+    <% funcionarios.forEach(funcionario => { %>
+      <li>
+        <strong><%= funcionario.nome %></strong> -
+        Horas Extras: <%= funcionario.horas_extras %>,
+        Horas Folga: <%= funcionario.horas_folga %>
+      </li>
+    <% }) %>
+  </ul>
+  <a href="/relatorios/pdf">Baixar Relatório em PDF</a>
+</body>
+</html>
