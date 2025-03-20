@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Funcionários</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <h1>Lista de Funcionários</h1>
+  <nav>
+    <a href="/">Home</a> |
+    <a href="/funcionarios">Funcionários</a> |
+    <a href="/relatorios">Relatórios</a> |
+    <a href="/login">Login</a>
+  </nav>
+  <div id="app">
+    <ul>
+      <% funcionarios.forEach(funcionario => { %>
+        <li>
+          <strong><%= funcionario.nome %></strong> -
+          Horas Extras: <%= funcionario.horas_extras %>,
+          Horas Folga: <%= funcionario.horas_folga %>
+        </li>
+      <% }) %>
+    </ul>
+  </div>
+</body>
+</html>
