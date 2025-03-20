@@ -4,16 +4,17 @@
     "description": "Aplicação para gerenciamento de horas extras e folgas",
     "main": "app.js",
     "scripts": {
-      "start": "node app.js",
-      "test": "echo \"Error: no test specified\" && exit 1"
+        "start": "node app.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
     },
     "dependencies": {
-      "express": "^4.18.2",
-      "pg": "^8.11.3",
-      "ejs": "^3.1.9",
-      "body-parser": "^1.20.2",
-      "bcryptjs": "^2.4.3",
-      "pdfkit": "^0.13.0",
-      "dotenv": "^16.3.1"
+        "bcryptjs": "^2.4.3",
+        "body-parser": "^1.20.2",
+        "dotenv": "^16.3.1",
+        "ejs": "^3.1.9",
+        "express": "^4.18.2",
+        "express-session": "^1.18.1",
+        "pdfkit": "^0.13.0",
+        "pg": "^8.11.3"
     }
-  }
+}
