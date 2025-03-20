@@ -4,6 +4,7 @@ const { Client } = require('pg');
 const bcrypt = require('bcryptjs');
 const PDFDocument = require('pdfkit');
 const path = require('path');
+const session = require('express-session');
 require('dotenv').config();
 
 const app = express();
@@ -15,10 +16,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// Configuração da sessão
+app.use(session({
+  secret: 'sua-chave-secreta',
+  resave: false,
+  saveUninitialized: true,
+}));
+
 // Conexão com o PostgreSQL
 const client = new Client({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
+  ssl: { rejectUnauthorized: false },
 });
 
 client.connect()
@@ -47,13 +55,21 @@ const createTables = async () => {
 
 createTables();
 
+// Middleware para verificar autenticação
+const isAuthenticated = (req, res, next) => {
+  if (req.session.user) {
+    return next();
+  }
+  res.redirect('/login');
+};
+
 // Rotas
 app.get('/', (req, res) => {
   res.render('index');
 });
 
 app.get('/login', (req, res) => {
-  res.render('login');
+  res.render('login', { message: '' });
 });
 
 app.post('/login', async (req, res) => {
@@ -61,47 +77,50 @@ app.post('/login', async (req, res) => {
   const result = await client.query('SELECT * FROM usuarios WHERE username = $1', [username]);
   const user = result.rows[0];
 
-  if (!user || !bcrypt.compareSync(password, user.password)) {
-    return res.status(401).send('Credenciais inválidas');
+  if (user && bcrypt.compareSync(password, user.password)) {
+    req.session.user = user;
+    res.redirect('/');
+  } else {
+    res.render('login', { message: 'Usuário ou senha incorretos' });
   }
-  res.redirect('/');
 });
 
-app.get('/funcionarios', async (req, res) => {
+app.get('/logout', (req, res) => {
+  req.session.destroy();
+  res.redirect('/login');
+});
+
+app.get('/funcionarios', isAuthenticated, async (req, res) => {
   const result = await client.query('SELECT * FROM funcionarios');
   res.render('funcionarios', { funcionarios: result.rows });
 });
 
-app.post('/funcionarios', async (req, res) => {
+app.post('/funcionarios', isAuthenticated, async (req, res) => {
   const { nome } = req.body;
   await client.query('INSERT INTO funcionarios (nome) VALUES ($1)', [nome]);
   res.redirect('/funcionarios');
 });
 
-app.get('/relatorios', async (req, res) => {
+app.get('/relatorios', isAuthenticated, async (req, res) => {
   const result = await client.query('SELECT * FROM funcionarios');
   res.render('relatorios', { funcionarios: result.rows });
 });
 
-// Rota para exibir o formulário de cadastro
 app.get('/cadastro-funcionario', isAuthenticated, (req, res) => {
   res.render('cadastro-funcionario');
 });
 
-// Rota para processar o formulário de cadastro
 app.post('/cadastro-funcionario', isAuthenticated, async (req, res) => {
   const { nome } = req.body;
   await client.query('INSERT INTO funcionarios (nome) VALUES ($1)', [nome]);
   res.redirect('/funcionarios');
 });
 
-// Rota para exibir o formulário de cadastro de horas
 app.get('/cadastro-horas', isAuthenticated, async (req, res) => {
   const result = await client.query('SELECT * FROM funcionarios');
   res.render('cadastro-horas', { funcionarios: result.rows });
 });
 
-// Rota para processar o formulário de cadastro de horas
 app.post('/cadastro-horas', isAuthenticated, async (req, res) => {
   const { funcionarioId, horas, folga } = req.body;
   await client.query(
@@ -111,14 +130,12 @@ app.post('/cadastro-horas', isAuthenticated, async (req, res) => {
   res.redirect('/funcionarios');
 });
 
-// Rota para exibir o formulário de edição
 app.get('/editar-funcionario/:id', isAuthenticated, async (req, res) => {
   const { id } = req.params;
   const result = await client.query('SELECT * FROM funcionarios WHERE id = $1', [id]);
   res.render('editar-funcionario', { funcionario: result.rows[0] });
 });
 
-// Rota para processar o formulário de edição
 app.post('/editar-funcionario', isAuthenticated, async (req, res) => {
   const { id, nome, horas_extras, horas_folga } = req.body;
   await client.query(
@@ -128,7 +145,7 @@ app.post('/editar-funcionario', isAuthenticated, async (req, res) => {
   res.redirect('/funcionarios');
 });
 
-app.get('/relatorios/pdf', async (req, res) => {
+app.get('/relatorios/pdf', isAuthenticated, async (req, res) => {
   const result = await client.query('SELECT * FROM funcionarios');
   const funcionarios = result.rows;
 

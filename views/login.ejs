@@ -8,6 +8,9 @@
 </head>
 <body>
   <h1>Login</h1>
+  <% if (message) { %>
+    <p style="color: red;"><%= message %></p>
+  <% } %>
   <form action="/login" method="POST">
     <label for="username">Usuário:</label>
     <input type="text" id="username" name="username" required>

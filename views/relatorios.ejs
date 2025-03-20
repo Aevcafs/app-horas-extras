@@ -8,15 +8,23 @@
 </head>
 <body>
   <h1>Relatórios</h1>
-  <ul>
-    <% funcionarios.forEach(funcionario => { %>
-      <li>
-        <strong><%= funcionario.nome %></strong> -
-        Horas Extras: <%= funcionario.horas_extras %>,
-        Horas Folga: <%= funcionario.horas_folga %>
-      </li>
-    <% }) %>
-  </ul>
-  <a href="/relatorios/pdf">Baixar Relatório em PDF</a>
+  <nav>
+    <a href="/">Home</a> |
+    <a href="/funcionarios">Funcionários</a> |
+    <a href="/relatorios">Relatórios</a> |
+    <a href="/logout">Logout</a>
+  </nav>
+  <div id="app">
+    <ul>
+      <% funcionarios.forEach(funcionario => { %>
+        <li>
+          <strong><%= funcionario.nome %></strong> -
+          Horas Extras: <%= funcionario.horas_extras %>,
+          Horas Folga: <%= funcionario.horas_folga %>
+        </li>
+      <% }) %>
+    </ul>
+    <a href="/relatorios/pdf">Baixar Relatório em PDF</a>
+  </div>
 </body>
 </html>
